@@ -45,7 +45,7 @@ $directoryPattern = '<Directory\s+"[^"]+">'      # Matches: <Directory "any/path
 
 Write-Host "Configuration updated to use $new_path for localhost."
 
-# Stop Apache Service
+# Stop Apache Service if running
 Write-Host "Stopping Apache..."
 Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
 
@@ -54,3 +54,13 @@ Write-Host "Starting Apache..."
 Start-Process -FilePath "net" -ArgumentList "start Apache2.4" -NoNewWindow
 
 Write-Host "Apache restarted successfully."
+
+# Wait for manual stop
+Write-Host "Press any key to stop Apache when you're done..."
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+# Stop Apache manually
+Write-Host "Stopping Apache manually..."
+Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
+
+Write-Host "Apache has been stopped."
