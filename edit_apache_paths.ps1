@@ -60,13 +60,42 @@ $stop_option = Read-Host "Enter 'm' to stop Apache manually, or 'a' to stop Apac
 
 if ($stop_option -eq 'a') {
     # Stop Apache automatically after a set delay (e.g., 30 minutes)
-    $delay_minutes = 30
+    $delay_minutes = 1  # Set to 1 minute for test purposes, change as needed
     Write-Host "Apache will stop automatically after $delay_minutes minutes..."
-    Start-Sleep -Seconds ($delay_minutes * 60)
 
-    Write-Host "Stopping Apache automatically..."
-    Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
-    Write-Host "Apache has been stopped."
+    # Calculate the time for the scheduled task (delay in seconds)
+    $delay_seconds = $delay_minutes * 60
+
+    # Create the auto-stop PowerShell script content
+    $auto_stop_script = "C:\Users\Charlie\Documents\Coding\auto_stop_apache.ps1"
+    $auto_stop_content = @"
+Start-Sleep -Seconds ($delay_seconds)  # Wait for the specified time
+Write-Host 'Stopping Apache automatically...'
+Start-Process -FilePath 'net' -ArgumentList 'stop Apache2.4' -Wait -NoNewWindow
+Write-Host 'Apache has been stopped.'
+"@
+    $auto_stop_content | Out-File -FilePath $auto_stop_script
+
+    # Check if the task already exists, and remove it if it does
+    $taskName = "AutoStopApache"
+    $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    if ($existingTask) {
+        Write-Host "Removing existing task '$taskName'..."
+        Unregister-ScheduledTask -TaskName $taskName
+    }
+
+    # Create the trigger for the scheduled task
+    $triggerTime = (Get-Date).AddSeconds(5)  # Start the task in 5 seconds, adjust as needed
+    $trigger = New-ScheduledTaskTrigger -At $triggerTime -Once  # Trigger once at the specified time
+
+    # Define the action (run PowerShell script to stop Apache)
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-File $auto_stop_script"
+
+    # Create the task and register it
+    $task = New-ScheduledTask -Action $action -Trigger $trigger
+    Register-ScheduledTask -TaskName $taskName -InputObject $task
+
+    Write-Host "Apache will stop automatically after $delay_minutes minutes. Task scheduled to run in the background."
 }
 
 else {
