@@ -55,12 +55,26 @@ Start-Process -FilePath "net" -ArgumentList "start Apache2.4" -NoNewWindow
 
 Write-Host "Apache restarted successfully."
 
-# Wait for manual stop
-Write-Host "Press any key to stop Apache when you're done..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+# Ask for stop option (manual or automatic)
+$stop_option = Read-Host "Enter 'm' to stop Apache manually, or 'a' to stop Apache after a set time (e.g., 30 minutes)"
 
-# Stop Apache manually
-Write-Host "Stopping Apache manually..."
-Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
+if ($stop_option -eq 'a') {
+    # Stop Apache automatically after a set delay (e.g., 30 minutes)
+    $delay_minutes = 30
+    Write-Host "Apache will stop automatically after $delay_minutes minutes..."
+    Start-Sleep -Seconds ($delay_minutes * 60)
 
-Write-Host "Apache has been stopped."
+    Write-Host "Stopping Apache automatically..."
+    Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
+    Write-Host "Apache has been stopped."
+}
+
+else {
+    # Manual stop: Wait for key press
+    Write-Host "Press any key to stop Apache manually..."
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+    Write-Host "Stopping Apache manually..."
+    Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
+    Write-Host "Apache has been stopped."
+}
