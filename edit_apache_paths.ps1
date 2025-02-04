@@ -1,5 +1,5 @@
 # Define the base directory containing projects
-$base_dir = "C:\Users\Charlie\Documents\Coding\web_development\projects"
+$base_dir = "C:\Users\Charl\Documents\web_development\projects"
 
 # Get all subdirectories (projects)
 $projects = Get-ChildItem -Path $base_dir -Directory | Select-Object -ExpandProperty Name
@@ -45,22 +45,33 @@ $directoryPattern = '<Directory\s+"[^"]+">'      # Matches: <Directory "any/path
 
 Write-Host "Configuration updated to use $new_path for localhost."
 
-# Stop Apache Service
-Write-Host "Stopping Apache..."
-Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
+# # Stop Apache if it's running
+# Write-Host "Stopping Apache..."
+# $apacheProcesses = Get-Process -Name "httpd" -ErrorAction SilentlyContinue
+# if ($apacheProcesses) {
+#     Stop-Process -Name "httpd" -Force
+#     Write-Host "Apache has been stopped."
+# } else {
+#     Write-Host "Apache was not running."
+# }
 
-# Start Apache Service
-Write-Host "Starting Apache..."
-Start-Process -FilePath "net" -ArgumentList "start Apache2.4" -NoNewWindow
+# # Start Apache directly
+# Write-Host "Starting Apache..."
+# Start-Process -FilePath "C:\xampp\apache\bin\httpd.exe" -NoNewWindow
+# Write-Host "Apache started successfully."
 
-Write-Host "Apache restarted successfully."
+# # Wait for manual stop
+# Write-Host "Press any key to stop Apache when you're done..."
+# $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
-# Wait for manual stop
-Write-Host "Press any key to stop Apache when you're done..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+# # Stop Apache manually
+# Write-Host "Stopping Apache manually..."
+# $apacheProcesses = Get-Process -Name "httpd" -ErrorAction SilentlyContinue
+# if ($apacheProcesses) {
+#     Stop-Process -Name "httpd" -Force
+#     Write-Host "Apache has been stopped."
+# } else {
+#     Write-Host "Apache was not running."
+# }
 
-# Stop Apache manually
-Write-Host "Stopping Apache manually..."
-Start-Process -FilePath "net" -ArgumentList "stop Apache2.4" -Wait -NoNewWindow
-
-Write-Host "Apache has been stopped."
+# Write-Host "Done."
